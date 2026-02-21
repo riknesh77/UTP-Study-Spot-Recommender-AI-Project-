@@ -1,1 +1,1 @@
-# UTP-Study-Spot-Reccomender-AI-Porject-
+# UTP-Study-Spot-Reccomender-AI-Project-
