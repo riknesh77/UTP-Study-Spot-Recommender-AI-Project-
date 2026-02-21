@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTP Study Spot Recommender</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+            body {
+                font-family: 'Inter', sans-serif;
+                background-color: #f3f4f6;
+            }
+            .bg-utp-blue { background-color: #002d5b;}
+            .text-utp-blue { color: #002d5b; }
+            .bg-utp-gold { background-color: #cfb53b; }
+            .text-utp-gold { color: #cfb53b; }
+            .border-utp-gold { border-color: #cfb53b; }
+
+            .slider-thumb::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 20px;
+                height: 20px;
+                background: #002d5b;
+                cursor: pointer;
+                border-radius: 50%;
+                border: 2px solid #cfb53b;
+            }
+
+            .card-hover { 
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-2px)
+                box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.5);
+            }
+        </style>
+
+    </head>
+    <body class="flex flex-col min-h-screen">
+         <!--navbar-->
+    <nav class="bg-utp-blue text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center space-x-3 mb-4 md:mb-0">
+                <div class="w-10 h-10 bg-utp-gold rounded-full flex items-center justify-center text-utp-blue font-bold text-xl">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide">UTP Study Spot Recommender</h1>
+                    <p class="text-xs text-gray-300 uppercase tracking-wider">Fuzzy Logic Project • Group 33</p>
+                </div>
+            </div>
+            <div class="text-sm text-right hidden md:block">
+                <p>TEB2023: Artificial Intelligence</p>
+                <p>September 2025</p>
+            </div>
+        </div>
+    </nav>
+
+    <!--main-->
+    <main class="container mx-auto px-4 py-8 flex-grow">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!--left:input Form-->
+            <div class="lg:col-span-4 space-y-6">
+                
+                <!--project scope-->
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-utp-gold">
+                    <h2 class="text-lg font-semibold text-utp-blue mb-2">Problem Statement</h2>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Finding a suitable study spot in UTP campus is a challenge due to different student preferences.
+                        Our recommender uses <span class="font-bold text-utp-blue">Fuzzy Logic</span> to match your vague requirements(such as "Kind of Quiet") with the perfect locations.
+                    </p>
+                </div>
+                
+                <!--controls card-->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold text-utp-blue mb-6 border-b pb-2">Find Your Spot</h2>
+                    
+                    <form id="preferencesForm" onsubmit="event.preventDefault(); calculateRecommendations();">
+                        
+                        <!--quietness input-->
+                        <div class="mb-8">
+                            <label class="block text-gray-700 font-semibold mb-2 flex justify-between">
+                                <span>Preferred Quietness</span>
+                                <span id="quietVal" class="text-utp-blue font-bold">Moderate</span>
+                            </label>
+                            <input type="range" min="1" max="10" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb" id="inputQuietness">
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>Noisy</span>
+                                <span>Silent</span>
+                            </div>
+                        </div>
+
+                        <!--crowd input-->
+                        <div class="mb-8">
+                            <label class="block text-gray-700 font-semibold mb-2 flex justify-between">
+                                <span>Crowd Tolerance</span>
+                                <span id="crowdVal" class="text-utp-blue font-bold">Moderate</span>
+                            </label>
+                            <input type="range" min="1" max="10" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb" id="inputCrowd">
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>Empty</span>
+                                <span>Packed</span>
+                            </div>
+                        </div>
+
+                        <!--outlet input-->
+                        <div class="mb-8">
+                            <label class="block text-gray-700 font-semibold mb-2">Outlet Availability</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button type="button" onclick="setOutletPref('Low')" id="btnOutletLow" class="outlet-btn py-2 border rounded text-sm font-medium hover:bg-gray-50 transition">Low</button>
+                                <button type="button" onclick="setOutletPref('Med')" id="btnOutletMed" class="outlet-btn py-2 border rounded text-sm font-medium bg-utp-blue text-white border-utp-blue">Med</button>
+                                <button type="button" onclick="setOutletPref('High')" id="btnOutletHigh" class="outlet-btn py-2 border rounded text-sm font-medium hover:bg-gray-50 transition">High</button>
+                            </div>
+                            <input type="hidden" id="inputOutlet" value="Med">
+                        </div>
+
+                        <button type="submit" class="w-full bg-utp-gold hover:bg-yellow-500 text-utp-blue font-bold py-3 px-4 rounded-lg shadow transition duration-200 flex items-center justify-center gap-2">
+                            <i class="fas fa-search"></i> Run Fuzzy Inference
+                        </button>
+                    </form>
+                </div>
+
+                <!--team members-->
+                <div class="bg-white rounded-xl shadow-sm p-6 mt-4">
+                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Project Team</h3>
+                    <ul class="space-y-3 text-sm text-gray-700">
+                        <li class="flex justify-between border-b border-gray-100 pb-1"><span>Nervindraj Sri Munisvaran (LEADER) </span> <span class="text-gray-400 text-xs">22011384</span></li>
+                        <li class="flex justify-between border-b border-gray-100 pb-1"><span>Haridvarna Raman Vathumalai</span> <span class="text-gray-400 text-xs">22011017</span></li>
+                        <li class="flex justify-between border-b border-gray-100 pb-1"><span>Rithish Hari</span> <span class="text-gray-400 text-xs">22011356</span></li>
+                        <li class="flex justify-between"><span>Riknesh Poonithan</span> <span class="text-gray-400 text-xs">22011479</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!--right results-->
+            <div class="lg:col-span-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Recommendations</h2>
+                    <span class="bg-blue-100 text-utp-blue text-xs font-semibold px-3 py-1 rounded-full">
+                        Results sorted by Fuzzy Score
+                    </span>
+                </div>
+
+                <!--results-->
+                <div id="resultsContainer" class="space-y-4">
+                </div>
+            </div>
+
+        </div>
+    </main>
+    <!--footer-->
+    <footer class="bg-gray-800 text-gray-400 py-6 text-center text-sm">
+        <p> Nervind is tired.</p>
+    </footer>
+    <!--logic-->
+    <script>
+        //kb
+        //
+        // scale 1-10: 
+        // quietness: 1 (very loud) -> 10 (quiet)
+        // crowd: 1 (wmpty) -> 10 (crowded)
+        // outlets: 1 (none) -> 10 (many)
+        const locations = [
+            {
+                id: 1,
+                name: "IRC Library (Main Hall)",
+                description: "Strictly quiet.",
+                quietness: 9,  //avg: 9/10
+                crowd: 9,      //avg: 9/10
+                outlets: 6,    //avg: medium
+                image: "library"
+            },
+            {
+                id: 2,
+                name: "IRC Discussion Rooms",
+                description: "Enclosed rooms good for group work.",
+                quietness: 10, //avg: 10/10
+                crowd: 3,      //avg: 3/10
+                outlets: 6,    //avg: medium
+                image: "meeting"
+            },
+            {
+                id: 3,
+                name: "V6 Nadi Student Centre",
+                description: "Rated surprisingly quiet by students.",
+                quietness: 8,  //avg: 8/10
+                crowd: 9,      //avg: 9/10
+                outlets: 7,    //avg: med-high
+                image: "cafe"
+            },
+            {
+                id: 4,
+                name: "Cafe",
+                description: "Open air, food nearby, can be noisy.",
+                quietness: 4,  //avg: 4/10
+                crowd: 8,      //avg: 8/10
+                outlets: 4,    //avg: low-med
+                image: "food"
+            },
+            {
+                id: 5,
+                name: "Classrooms",
+                description: "Cold AC, focused environment.",
+                quietness: 7,  //avg: 7/10
+                crowd: 7,      //avg: 7/10
+                outlets: 4,    //avg: low-med
+                image: "lab"
+            },
+            {
+                id: 6,
+                name: "Pocket C 24/7 Study Space",
+                description: "24-hour air-conditioned study facility.",
+                quietness: 9,  //avg: 9/10
+                crowd: 9,      //avg: 9/10
+                outlets: 8,    //avg: high
+                image: "lab"
+            },
+            {
+                id: 7,
+                name: "V5 Study Space",
+                description: "Quiet study area within dorms.",
+                quietness: 9,  //avg: 9/10
+                crowd: 7,      //avg: 7/10
+                outlets: 5,    //avg: medium
+                image: "library"
+            }
+        ];
+
+        //ui logic
+
+        //slidre label
+        const inputQuiet = document.getElementById('inputQuietness');
+        const labelQuiet = document.getElementById('quietVal');
+        const inputCrowd = document.getElementById('inputCrowd');
+        const labelCrowd = document.getElementById('crowdVal');
+
+        function getLinguisticTerm(val) {
+            if(val <= 3) return "Low";
+            if(val <= 7) return "Moderate";
+            return "High";
+        }
+
+        inputQuiet.addEventListener('input', (e) => {
+            labelQuiet.innerText = getLinguisticTerm(e.target.value);
+        });
+
+        inputCrowd.addEventListener('input', (e) => {
+            labelCrowd.innerText = getLinguisticTerm(e.target.value);
+        });
+
+        //outlet choice buttons
+        function setOutletPref(val) {
+            document.getElementById('inputOutlet').value = val;
+            
+            document.querySelectorAll('.outlet-btn').forEach(btn => {
+                btn.classList.remove('bg-utp-blue', 'text-white', 'border-utp-blue');
+                btn.classList.add('hover:bg-gray-50');
+            });
+            
+            const activeBtn = document.getElementById('btnOutlet' + val);
+            activeBtn.classList.add('bg-utp-blue', 'text-white', 'border-utp-blue');
+            activeBtn.classList.remove('hover:bg-gray-50');
+        }
+
+        //fuzzylogic sim
+
+        function calculateRecommendations() {
+            const userQuiet = parseInt(inputQuiet.value);
+            const userCrowd = parseInt(inputCrowd.value);
+            const userOutletStr = document.getElementById('inputOutlet').value;
+            
+            //map outlet string to numeric
+            let userOutlet = 5;
+            if(userOutletStr === 'Low') userOutlet = 2;
+            if(userOutletStr === 'High') userOutlet = 9;
+
+            const results = locations.map(loc => {
+                
+                
+                
+                //difference calculation(absolute error)
+                const quietDiff = Math.abs(loc.quietness - userQuiet);
+                const crowdDiff = Math.abs(loc.crowd - userCrowd);
+                const outletDiff = Math.abs(loc.outlets - userOutlet);
+
+                //weights
+                //quietness is usually most critical for studying.
+                const wQ = 0.5;
+                const wC = 0.3;
+                const wO = 0.2;
+
+                //total difference
+                //max difference per attribute is approx 9.
+                const weightedDiff = (quietDiff * wQ) + (crowdDiff * wC) + (outletDiff * wO);
+                
+                //convert difference to Score (0-100%)
+                //max possible weighted diff is approx 9.
+                //score = 100-((weightedDiff / 9)* 100)
+                let rawScore = 100 - ((weightedDiff / 9) * 100);
+                
+                //clamp score
+                if(rawScore < 0) rawScore = 0;
+                if(rawScore > 100) rawScore = 100;
+
+                return { ...loc, score: Math.round(rawScore) };
+            });
+
+            //sort
+            results.sort((a, b) => b.score - a.score);
+
+            renderResults(results);
+        }
+
+        function renderResults(data) {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '';
+
+            if(data.length === 0) {
+                container.innerHTML = '<div class="text-center text-gray-500">No results found.</div>';
+                return;
+            }
+
+            data.forEach((loc, index) => {
+                //dynamic icons
+                let iconClass = "fa-building";
+                if(loc.image === 'library') iconClass = "fa-book-reader";
+                if(loc.image === 'cafe') iconClass = "fa-coffee";
+                if(loc.image === 'food') iconClass = "fa-utensils";
+                if(loc.image === 'lab') iconClass = "fa-laptop-code";
+                if(loc.image === 'park') iconClass = "fa-tree";
+
+                //badge color based on score
+                let badgeColor = "bg-green-100 text-green-800";
+                if(loc.score < 70) badgeColor = "bg-yellow-100 text-yellow-800";
+                if(loc.score < 40) badgeColor = "bg-red-100 text-red-800";
+
+                const html = `
+                <div class="bg-white rounded-lg p-5 shadow card-hover border-l-8 ${index === 0 ? 'border-utp-gold' : 'border-transparent'} flex flex-col md:flex-row items-start md:items-center gap-4">
+                    
+                    <!-- Rank/Icon -->
+                    <div class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 bg-gray-100 rounded-full text-utp-blue text-2xl">
+                        <i class="fas ${iconClass}"></i>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-lg font-bold text-gray-900">${loc.name}</h3>
+                            <span class="${badgeColor} text-sm font-bold px-2.5 py-0.5 rounded hidden md:inline-block">
+                                ${loc.score}% Match
+                            </span>
+                        </div>
+                        <p class="text-gray-500 text-sm mb-3">${loc.description}</p>
+                        
+                        <!-- Attributes Visualization -->
+                        <div class="grid grid-cols-3 gap-4 text-xs">
+                            <div>
+                                <span class="text-gray-400 block">Quietness</span>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                    <div class="bg-blue-600 h-1.5 rounded-full" style="width: ${loc.quietness * 10}%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-gray-400 block">Crowd</span>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                    <div class="bg-red-500 h-1.5 rounded-full" style="width: ${loc.crowd * 10}%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-gray-400 block">Outlets</span>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                    <div class="bg-utp-gold h-1.5 rounded-full" style="width: ${loc.outlets * 10}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Score Badge -->
+                    <div class="md:hidden w-full mt-2 flex justify-end">
+                         <span class="${badgeColor} text-sm font-bold px-3 py-1 rounded-full">
+                                ${loc.score}% Match
+                        </span>
+                    </div>
+                </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        //initial renderingg
+        calculateRecommendations();
+    </script>
+</body>
+</html>
